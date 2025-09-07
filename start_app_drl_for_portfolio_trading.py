@@ -122,12 +122,13 @@ def train_drl_agent(returns_data, train_years=3, validation_months=3):
             sharpe_calc = DifferentialSharpeCalculator()
             episode_rewards = []
             
-            for step in range(env.max_steps):
+            for step in range(env.max_steps):  # for each time step, compute the state/action/reward/value: SAR)
                 action, log_prob, value = agent.get_action(state)
-                next_state, portfolio_return, done = env.step(action)
+                next_state, portfolio_return, done = env.step(action)  # Note: portfolio_return is the t+1 return as a results of executing \pi(a_{t}|s_{t})
                 
-                # Calculate differential Sharpe as reward
-                reward = sharpe_calc.update(portfolio_return)  # portfolio return =\sum_i action(i, t) * returns(i, t+1)
+                # Calculate differential Sharpe as reward (this is ground truth reward).
+                # We will use this to train the value network
+                reward = sharpe_calc.update(portfolio_return)  # portfolio return(t+1) =\sum_i action(i, t) * returns(i, t+1)
                 episode_rewards.append(reward)
                 
                 agent.store_transition(state, action, reward, log_prob, value, done)
@@ -138,7 +139,7 @@ def train_drl_agent(returns_data, train_years=3, validation_months=3):
                 state = next_state
             
             # Update agent
-            if episode % 10 == 0:  # Update every 10 episodes
+            if (episode > 0) & (episode % 10 == 0):  # Update every 10 episodes
                 agent.update()
             
             # Validate every 50 episodes

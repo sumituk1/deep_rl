@@ -80,7 +80,7 @@ class PPOAgent:
         actions = torch.FloatTensor(np.array(self.actions))
         old_log_probs = torch.FloatTensor(self.log_probs)
         advantages = torch.FloatTensor(advantages)
-        returns = advantages + torch.FloatTensor(self.values)
+        rewards = advantages + torch.FloatTensor(self.values)  # differential sharpe
 
         # Normalize advantages
         advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
@@ -103,7 +103,7 @@ class PPOAgent:
 
             # Value update
             values = self.critic(states).squeeze()
-            value_loss = F.mse_loss(values, returns)
+            value_loss = F.mse_loss(values, rewards)
 
             self.critic_optimizer.zero_grad()
             value_loss.backward()
