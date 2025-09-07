@@ -40,7 +40,7 @@ class PortfolioEnvironment:
         
         for i in range(self.lookback_window, len(self.returns_data)):
             # Historical returns (lookback_window days)
-            hist_returns = self.returns_data.iloc[i - self.lookback_window: i].values.flatten()
+            hist_returns = self.returns_data.iloc[i - self.lookback_window: i].values.flatten()  # 60 (lookback) * 11 features = (660,)
             
             # Current weights
             weights = self.weights_history if i < len(self.weights_history) else self.current_weights
@@ -95,7 +95,7 @@ class PortfolioEnvironment:
         # Calculate returns for next period
         next_returns = self.returns_data.iloc[self.current_step + self.lookback_window]
         
-        # Portfolio return (excluding cash, which has 0 return)
+        # Portfolio return (excluding cash, which has 0 return) : R_p(t) = \sum_{i} A(i,t) * r(i, t+1)
         portfolio_return = np.sum(action[:-1] * next_returns.values)  # Exclude cash weight
         
         self.current_step += 1

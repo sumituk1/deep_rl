@@ -117,7 +117,7 @@ def train_drl_agent(returns_data, train_years=3, validation_months=3):
         best_val_sharpe = -np.inf
         best_agent_state = None
         
-        for episode in range(n_episodes):
+        for episode in range(n_episodes):  # Repeat the below steps 200 (# episodes) times
             state = env.reset()
             sharpe_calc = DifferentialSharpeCalculator()
             episode_rewards = []
@@ -127,7 +127,7 @@ def train_drl_agent(returns_data, train_years=3, validation_months=3):
                 next_state, portfolio_return, done = env.step(action)
                 
                 # Calculate differential Sharpe as reward
-                reward = sharpe_calc.update(portfolio_return)
+                reward = sharpe_calc.update(portfolio_return)  # portfolio return =\sum_i action(i, t) * returns(i, t+1)
                 episode_rewards.append(reward)
                 
                 agent.store_transition(state, action, reward, log_prob, value, done)

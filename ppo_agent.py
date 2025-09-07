@@ -33,7 +33,7 @@ class PPOAgent:
         state_tensor = torch.FloatTensor(state).unsqueeze(0)
 
         with torch.no_grad():
-            value = self.critic(state_tensor)
+            value = self.critic(state_tensor)  # Critic gives the Expected value of Reward which is the differential sharpe. See Eq (1) in the paper
 
         dist = self.policy(state_tensor)
         action = dist.sample()
@@ -60,6 +60,7 @@ class PPOAgent:
 
         values = self.values + [next_value]
 
+        # A(t) = δ(t) + γλδ(t+1) + (γλ)²δ(t+2) + ... + (γλ)^(T-t)δ(T)
         for t in reversed(range(len(self.rewards))):
             delta = self.rewards[t] + self.gamma * values[t + 1] * (1 - self.dones[t]) - values[t]
             advantage = delta + self.gamma * self.gae_lambda * (1 - self.dones[t]) * advantage
